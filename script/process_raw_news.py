@@ -6,7 +6,8 @@ import jieba;
 import xml.etree.ElementTree as ET;
 
 def xml_str_generator(filename,num):
-    cnt=0;
+    cnt=1;
+    line_cnt=1;
     p=re.compile(u"^[\u4e00-\u9fa5]");
     f=open(filename);
     xml_str="";
@@ -18,11 +19,12 @@ def xml_str_generator(filename,num):
             #print xml_str.encode("utf-8");
 #            xml_str=re.sub(u"[\x00-\x08\x0b-\x0c\x0e-\x1f]+",u"",xml_str);
             xml_str=xml_str.encode("utf-8");
-            yield xml_str;
+            yield xml_str,cnt,line_cnt;
             xml_str="";
             cnt+=1;
             if num>0 and cnt>=num:
                 break;
+        line_cnt+=1;
     f.close();
 class Vocab:
     def __init__(self):
@@ -52,7 +54,7 @@ def main():
     cnt=0;
     error_cnt=0;
     print "start cut words:",datetime.now();
-    for xml_str in xml_str_generator(filename,-1):
+    for xml_str,docId,lineId in xml_str_generator(filename,-1):
         if cnt%10000==0:
             print >> sys.stderr,"process :",cnt,"errors:",error_cnt,"time:",datetime.now();
         cnt+=1;
@@ -72,10 +74,10 @@ def main():
         for term in jieba.cut(content.text):
             Id=vocab.add(term.encode("utf-8"));
             doc_nums[Id]=doc_nums.get(Id,0)+1;
-        content="";
+        content=str(docId)+" "+str(lineId);
         for Id in doc_nums:
             t=str(Id)+" "+str(doc_nums[Id]);
-            content=t if content=="" else content+"\t"+t;
+            content+="\t"+t;
         fout.write(content+"\n");
     vocab.list_info();
     fout.close();

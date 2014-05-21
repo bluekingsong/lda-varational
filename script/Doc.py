@@ -1,13 +1,21 @@
 #!/usr/bin/env python
 
 class Doc:
-    def __init__(self,rawStr):
+    def __init__(self,rawStr,vocab):
         self.terms={};
         self.totalTerms=0;
+        mark=True;
         for term in rawStr.split("\t"):
             items=term.split(" ");
-            self.terms[int(items[0])]=int(terms[1]);
-            self.totalTerms+=int(terms[1]);
+            t1=int(items[0]);
+            t2=int(items[1]);
+            if mark:
+                self.docId=t1;
+                self.lineId=t2;
+                mark=False;
+            elif vocab.has_term(t1):
+                self.terms[t1]=t2;
+                self.totalTerms+=t2;
         self.gamma=[]; # the varational parameter for topics' pirior parameter
         self.phi={}; # the varation parameter for topics' parameter
         self.topicNum=0;
@@ -35,7 +43,7 @@ class Doc:
             if abs(bound-low_bound)<epsilon:
                 break;
             low_bound=bound;
-    def init_varational_parameters(self,vocab): # by random
+    def init_varational_parameters(self,vocab,model):
         self.gamma=[];
         for i in xrange(self.topicNum):
             self.gamma.append(1.0/self.topicNum);
