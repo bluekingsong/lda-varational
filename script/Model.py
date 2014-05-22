@@ -27,7 +27,8 @@ class Model:
                 self.beta[(i,j)]/=beta_sum;
         # estimate alpha parameter
         iteration=0;
-        obj=self.log_likelihood_rel_alpha(docs);
+        #obj=self.log_likelihood_rel_alpha(docs);
+        obj=-1e10; # self.lowerbound_likelihood(docs);
         while iteration<maxIter:
             g=self.calc_gradient_rel_alpha(docs);
             h,z=self.calc_hessian_rel_alpha(docs);
@@ -39,11 +40,13 @@ class Model:
             c=c1/(1.0/z+c2);
             for i in xrange(self.topicNum):
                 self.alpha[i]-=(g[i]-c)/h[i];
-            new_obj=self.log_likelihood_rel_alpha(docs);
+            new_obj=self.lowerbound_likelihood(docs); ###self.log_likelihood_rel_alpha(docs);
             if new_obj-obj<epsilon:
                 break;
             obj=new_obj;
             iteration+=1;
+        print "hint: in Model MLE, do",iteration,"iterations for alpha, get avg_loweverbound_likelihood",new_obj;
+        return new_obj;
     def calc_gradient_rel_alpha(self,docs):
         g=numpy.array([0.0]*self.topicNum);
         for doc in docs:
@@ -86,6 +89,7 @@ class Model:
     def init_parameters(self):
         self.alpha=[];
         self.beta={};
+        print "topicNum=",self.topicNum,"vocab size=",len(self.vocab.get_term_id_list());
         for i in xrange(self.topicNum):
             self.alpha.append(uniform(2,10));
             beta_sum=0;
