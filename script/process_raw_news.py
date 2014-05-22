@@ -28,16 +28,24 @@ def xml_str_generator(filename,num):
     f.close();
 class Vocab:
     def __init__(self):
-        self.index=[];
-        self.wordMap={};
-        self.freqCnt={};
-    def add(self,term):
+        self.index=[]; ## for global use
+        self.wordMap={}; ## for global use
+        self.freqCnt={}; ## term freq for global use, doc freq for local use(build vocab by some docs)
+    def add(self,term,freq=1):
         if term not in self.wordMap:
             self.wordMap[term]=len(self.index);
             self.index.append(term);
         Id=self.wordMap[term];
-        self.freqCnt[Id]=self.freqCnt.get(Id,0)+1;
+        self.freqCnt[Id]=self.freqCnt.get(Id,0)+freq;
         return Id;
+    def add_doc(self,rawStr):
+        for para in rawStr.split("\t")[1:]:
+            tid=int(para.split(" ")[0]);
+            self.freqCnt[tid]=self.freqCnt.get(tid,0)+1;
+    def simplify_by_df(self,freqEps):
+        to_del=[tid for tid in self.freqCnt if self.freqCnt[tid]<freqEps];
+        for tid in to_del:
+            del self.freqCnt[tid];
     def save(self,filename):
         fout=open(filename,"w");
         for term in self.wordMap:
@@ -45,6 +53,20 @@ class Vocab:
             content=term+"\t"+str(Id)+"\t"+str(self.freqCnt[Id])+"\n";
             fout.write(content);
         fout.close();
+    def load(self,filename,termFreqEps):
+        for line in open(filename):
+            paras=line.split("\t");
+            t=paras[0];
+            tid=int(paras[1]);
+            freq=int(paras[2]);
+            if freq<termFreqEps:
+                continue;
+            self.wordMap[t]=tid;
+            self.freqCnt[tid]=freq;
+    def get_term_id_list(self):
+        return self.freqCnt.keys();
+    def has_term_id(self,tid):
+        return tid in self.freqCnt;
     def list_info(self):
         print "number of terms:",len(self.index);
 def main():

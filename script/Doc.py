@@ -13,7 +13,7 @@ class Doc:
                 self.docId=t1;
                 self.lineId=t2;
                 mark=False;
-            elif vocab.has_term(t1):
+            elif vocab.has_term_id(t1):
                 self.terms[t1]=t2;
                 self.totalTerms+=t2;
         self.gamma=[]; # the varational parameter for topics' pirior parameter
@@ -44,6 +44,7 @@ class Doc:
                 break;
             low_bound=bound;
     def init_varational_parameters(self,vocab,model):
+        self.topicNum=model.topicNum;
         self.gamma=[];
         for i in xrange(self.topicNum):
             self.gamma.append(1.0/self.topicNum);

@@ -2,7 +2,7 @@
 from math import log;
 from random import uniform;
 import numpy;
-from scipy.special import polygamma;
+from scipy.special import polygamma,gammaln;
 
 class Model:
     def __init__(self,topicNum,vocab):
@@ -66,11 +66,12 @@ class Model:
                 obj+=(self.alpha[i]-1)*(polygamma(0,doc.gamma[i])-c);
         return obj;
     def lowerbound_likelihood(self,docs):
+        m=len(docs);
         obj=m*gammaln(sum(self.alpha))-m*gammaln(self.alpha).sum();
         for doc in docs:
-            obj+=doc_lowerbound_likelihood(self,doc);
+            obj+=self.doc_lowerbound_likelihood(doc);
         return obj/len(docs);
-    def doc_lowerbound_likehilood(self,doc):
+    def doc_lowerbound_likelihood(self,doc):
         obj=0.0;
         sum_digamma=polygamma(0,sum(doc.gamma));
         digamma=polygamma(0,doc.gamma);
@@ -78,17 +79,19 @@ class Model:
             obj+=(self.alpha[i]-1)*(digamma[i]-sum_digamma);
             for j in doc.get_term_id_list():
                 obj+=doc.phi[(i,j)]*(digamma[i]-sum_digamma+log(self.beta[(i,j)]));
-                obj-=doc.phi[(i,j)]*log(doc.phi[(i,j)];
+                obj-=doc.phi[(i,j)]*log(doc.phi[(i,j)]);
             obj-=(doc.gamma[i]-1)*(digamma[i]-sum_digamma);
             obj+=gammaln(doc.gamma).sum()-gammaln(sum(doc.gamma));
         return obj;
     def init_parameters(self):
+        self.alpha=[];
+        self.beta={};
         for i in xrange(self.topicNum):
-            self.alpha[i]=uniform(2,10);
+            self.alpha.append(uniform(2,10));
             beta_sum=0;
             for j in self.vocab.get_term_id_list():
                 t=uniform(1,2);
                 self.beta[(i,j)]=t;
                 beta_sum+=t;
-                for j in self.vocab.get_term_id_list():
-                    self.beta[(i,j)]/=beta_sum;
+            for j in self.vocab.get_term_id_list():
+                self.beta[(i,j)]/=beta_sum;
