@@ -65,4 +65,4 @@ def train(docs_filename,numOfDoc,vocab_filename,dfEps,topicNum=50,epsilon=1e-5,m
     pass; # save model
 
 if __name__=="__main__":
-    train("data/docs",2000,"data/vocab",10);
+    train("data/docs",200,"data/vocab",10,topicNum=20,epsilon=1e-4,maxIter=20);

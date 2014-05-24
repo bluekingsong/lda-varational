@@ -50,8 +50,8 @@ class Model:
     def calc_gradient_rel_alpha(self,docs):
         g=numpy.array([0.0]*self.topicNum);
         for doc in docs:
-            g+=polygamma(doc.gamma);
-            g-=polygamma(sum(doc.gamma));
+            g+=polygamma(0,doc.gamma);
+            g-=polygamma(0,sum(doc.gamma));
         g+=len(docs)*polygamma(0,sum(self.alpha));
         g-=len(docs)*polygamma(0,self.alpha);
         return g;

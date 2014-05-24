@@ -58,5 +58,7 @@ class Doc:
                 self.phi[(i,j)]=model.alpha[i]+float(self.totalTerms)/self.topicNum;
     def get_term_id_list(self):
         return self.terms.keys();
+    def get_term_freq(self,tid):
+        return self.terms.get(tid,0);
     def __len__(self):
         return len(self.terms);
