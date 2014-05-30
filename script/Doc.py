@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+from datetime import datetime;
+from math import log,exp;
+from scipy.special import polygamma,gammaln;
 
 class Doc:
     def __init__(self,rawStr,vocab):
@@ -21,15 +24,15 @@ class Doc:
         self.topicNum=0;
     def varational_inference(self,model,vocab,epsilon=1e-6,maxIter=1e6):
         self.topicNum=model.topicNum;
-        self.init_varational_parameters(vocab);
+        self.init_varational_parameters(vocab,model);
         ## varational inference;
-        low_bound=model.doc_lowerbound_likelihood(self);
+        low_bound=1e10; #model.doc_lowerbound_likelihood(self);
         iteration=0;
         while iteration<maxIter:
             for termId in self.terms:
                 s=0.0;
                 for i in xrange(self.topicNum):
-                    t=model.beta[(i,termId)]*exp(polygamma(0,gamma[i]));
+                    t=model.beta[(i,termId)]*exp(polygamma(0,self.gamma[i]));
                     s+=t*self.terms[termId];
                     self.phi[(i,termId)]=t;
                 for i in xrange(self.topicNum):
@@ -43,11 +46,19 @@ class Doc:
             if abs(bound-low_bound)<epsilon:
                 break;
             low_bound=bound;
+        print "hint: in Doc varational_inference, iterations=",iteration,"lowerbound_likelihood=",bound,"time:",datetime.now();
     def init_varational_parameters(self,vocab,model):
         self.topicNum=model.topicNum;
+        #print "varational parameters, topicNum=",self.topicNum,"vocab size=",len(vocab.get_term_id_list());
         self.gamma=[];
         for i in xrange(self.topicNum):
             self.gamma.append(1.0/self.topicNum);
         for i in xrange(self.topicNum):
-            for j in vocab.get_term_id_list():
+            for j in self.terms:
                 self.phi[(i,j)]=model.alpha[i]+float(self.totalTerms)/self.topicNum;
+    def get_term_id_list(self):
+        return self.terms.keys();
+    def get_term_freq(self,tid):
+        return self.terms.get(tid,0);
+    def __len__(self):
+        return len(self.terms);
