@@ -180,7 +180,7 @@ int main(int argc,char **argv){
     //const char *filename="data/docs.10000.2119690";
     const char *filename="data/docs.100000.22553156";
     //int numDocs=10000,numWords=2119690,vocabSize=3513,numTopics=50,maxBurnInIter=5000,maxIter=10000,sampleLag=100;
-    int numDocs=100000,numWords=22553156,vocabSize=12843,numTopics=50,maxBurnInIter=5000,maxIter=10000,sampleLag=100;
+    int numDocs=100000,numWords=22553156,vocabSize=12843,numTopics=50,maxBurnInIter=10000,maxIter=20000,sampleLag=1000;
     double alpha=50.0/numTopics,beta=0.01;
     inference(filename,numDocs,numWords,vocabSize,numTopics,maxBurnInIter,maxIter,sampleLag,alpha,beta);
 }
