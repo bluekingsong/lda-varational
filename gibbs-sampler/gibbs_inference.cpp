@@ -127,7 +127,7 @@ void inference(const char *filename,int numDocs,int numWords,int vocabSize,int n
     float *phi=(float*)(topicBucket+3*K);
     float *theta=phi+K*V;
     cout<<"begin to read docs."<<endl;
-    read_docs(filename,docs,words,M);
+    if(read_docs(filename,docs,words,M)<0)  return;
     cout<<"begin to initailize. time:"<<TimeFunction::now()<<endl;
     initialize(docs,words,topics,topicTerm,topicDoc,topicBucket,M,W,V,K);
     cout<<"start gibbs iteration. time:"<<TimeFunction::now()<<endl;
@@ -137,6 +137,7 @@ void inference(const char *filename,int numDocs,int numWords,int vocabSize,int n
     int burn_in_iter=0;
     while(iteration++ < maxIter){
         transit(docs,words,topics,topicTerm,topicDoc,topicBucket,sampleWeights,M,W,V,K,alpha,beta);
+        if(iteration==1)  cout<<"first iteration. time:"<<TimeFunction::now()<<endl;
         if(burn_in_peroid){
             if(check_convergence(iteration,maxBurnInIter)){
                 burn_in_peroid=false;
@@ -176,8 +177,10 @@ void inference(const char *filename,int numDocs,int numWords,int vocabSize,int n
 }
 
 int main(int argc,char **argv){
-    const char *filename="data/docs.10000.2119690";
-    int numDocs=10000,numWords=2119690,vocabSize=3513,numTopics=50,maxBurnInIter=5000,maxIter=10000,sampleLag=100;
-    double alpha=1.0,beta=0.01;
+    //const char *filename="data/docs.10000.2119690";
+    const char *filename="data/docs.100000.22553156";
+    //int numDocs=10000,numWords=2119690,vocabSize=3513,numTopics=50,maxBurnInIter=5000,maxIter=10000,sampleLag=100;
+    int numDocs=100000,numWords=22553156,vocabSize=12843,numTopics=50,maxBurnInIter=5000,maxIter=10000,sampleLag=100;
+    double alpha=50.0/numTopics,beta=0.01;
     inference(filename,numDocs,numWords,vocabSize,numTopics,maxBurnInIter,maxIter,sampleLag,alpha,beta);
 }
